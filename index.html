@@ -43,10 +43,34 @@
             console.info('jsonFileListingInputElem', jsonFileListingInputElem);
             console.info('json', json);
             console.info('fileNameFilter', fileNameFilter);
+
+            updateOutput(json, fileNameFilter);
         } else {
             console.info('not all input present');
         }
     }
+
+    //
+    function updateOutput(json, fileNameFilter) {
+
+        const filteredLogEntries = json.filter(e => e.name.includes(fileNameFilter));
+        console.info('filteredLogEntries', filteredLogEntries);
+
+        let outputHtmlString = '';
+
+        outputHtmlString += '<ul>';
+        filteredLogEntries.forEach(logEntry => {
+            outputHtmlString += '<li>' + logEntry.name + '</li>';
+        });
+        outputHtmlString += '</ul>';
+
+        outputContainerElem.innerHTML = outputHtmlString;
+    }
+
+
+    //
+    inputChangeHandler();
+
 
 </script>
 
