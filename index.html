@@ -8,7 +8,12 @@
 
 <div>
     <label for="jsonFileListingInput">JSON File Listing</label><br/>
-    <textarea cols="100" rows="10" id="jsonFileListingInput"></textarea>
+    <textarea cols="125" rows="10" id="jsonFileListingInput"></textarea>
+</div>
+
+<div>
+    <input type="checkbox" id="autoUpdateFiltersInput" checked/>
+    <label for="autoUpdateFiltersInput">Automatically update filters</label>
 </div>
 
 <div>
@@ -16,20 +21,99 @@
     <input type="text" id="fileNameFilterInput"/>
 </div>
 
+<div>
+    <button id="loadDummySampleDataBtn">Load Dummy / Sample Data</button>
+    <button id="applyFiltersBtn">Apply Filters</button>
+</div>
+
 <div id="outputContainer">
 </div>
+
+
+<script type="application/javascript">
+    /**
+     * Dummy data to demonstrate typical input.
+     * - Where your resource is accessible via: https://<RESOURCE-NAME>.azurewebsites.net/
+     * - Kudu domain will usually be in format: https://<RESOURCE-NAME>.scm.azurewebsites.net/
+     */
+    const exampleDomain = 'https://example.com/';
+
+    // Note that in this example, the filename contains a guid of the application
+    // Note that `/api/vfs/` represent the root of your home directory
+    const sampleInputJson =
+        [
+            {
+                "name": "error-log.08c44e2b9c03e617eee297e95f72682218f55a65f6125e7da034005b0b1a16a9.2022-01-01.log",
+                "size": 23282,
+                "mtime": "2022-01-01T09:46:57.8137282+00:00",
+                "crtime": "2022-01-01T07:18:49.9091334+00:00",
+                "mime": "application/octet-stream",
+                "href": exampleDomain + "/api/vfs/LogFiles/Application/error-log.08c44e2b9c03e617eee297e95f72682218f55a65f6125e7da034005b0b1a16a9.2022-01-01.log",
+                "path": "D:\\home\\LogFiles\\Application\\error-log.08c44e2b9c03e617eee297e95f72682218f55a65f6125e7da034005b0b1a16a9.2022-01-01.log"
+            },
+            {
+                "name": "info-log.08c44e2b9c03e617eee297e95f72682218f55a65f6125e7da034005b0b1a16a9.2022-01-01.log",
+                "size": 23282,
+                "mtime": "2022-01-01T09:46:57.8137282+00:00",
+                "crtime": "2022-01-01T07:18:49.9091334+00:00",
+                "mime": "application/octet-stream",
+                "href": exampleDomain + "/api/vfs/LogFiles/Application/error-log.08c44e2b9c03e617eee297e95f72682218f55a65f6125e7da034005b0b1a16a9.2022-01-01.log",
+                "path": "D:\\home\\LogFiles\\Application\\error-log.08c44e2b9c03e617eee297e95f72682218f55a65f6125e7da034005b0b1a16a9.2022-01-01.log"
+            },
+            {
+                "name": "error-log.08c44e2b9c03e617eee297e95f72682218f55a65f6125e7da034005b0b1a16a9.2022-02-01.log",
+                "size": 23282,
+                "mtime": "2022-02-01T09:46:57.8137282+00:00",
+                "crtime": "2022-02-01T07:18:49.9091334+00:00",
+                "mime": "application/octet-stream",
+                "href": exampleDomain + "/api/vfs/LogFiles/Application/error-log.08c44e2b9c03e617eee297e95f72682218f55a65f6125e7da034005b0b1a16a9.2022-02-01.log",
+                "path": "D:\\home\\LogFiles\\Application\\error-log.08c44e2b9c03e617eee297e95f72682218f55a65f6125e7da034005b0b1a16a9.2022-02-01.log"
+            },
+            {
+                "name": "info-log.08c44e2b9c03e617eee297e95f72682218f55a65f6125e7da034005b0b1a16a9.2022-02-01.log",
+                "size": 23282,
+                "mtime": "2022-02-01T09:46:57.8137282+00:00",
+                "crtime": "2022-02-01T07:18:49.9091334+00:00",
+                "mime": "application/octet-stream",
+                "href": exampleDomain + "/api/vfs/LogFiles/Application/error-log.08c44e2b9c03e617eee297e95f72682218f55a65f6125e7da034005b0b1a16a9.2022-02-01.log",
+                "path": "D:\\home\\LogFiles\\Application\\error-log.08c44e2b9c03e617eee297e95f72682218f55a65f6125e7da034005b0b1a16a9.2022-02-01.log"
+            }
+        ];
+    const sampleJsonInputString = JSON.stringify(sampleInputJson, null, 2);
+
+    //
+    const sampleFilterString = '2022-02-\\d{2}'; // Show results only for error logs in January 2022 within the file name
+
+
+    //
+    function loadDummySampleData() {
+        console.info('overwriting inputs with dummy/sample data', sampleJsonInputString, sampleFilterString);
+        jsonFileListingInputElem.value = sampleJsonInputString;
+        fileNameFilterElem.value = sampleFilterString;
+
+        inputChangeHandler();
+    }
+
+    //
+    const loadDummySampleDataBtn = document.getElementById('loadDummySampleDataBtn');
+    loadDummySampleDataBtn.addEventListener('click', loadDummySampleData);
+</script>
 
 <script type="application/javascript">
 
     //
     const jsonFileListingInputElem = document.getElementById('jsonFileListingInput');
     const fileNameFilterElem = document.getElementById('fileNameFilterInput');
+    const autoUpdateFiltersInputElem = document.getElementById('autoUpdateFiltersInput');
     const outputContainerElem = document.getElementById('outputContainer');
+    const applyFiltersBtnElem = document.getElementById('applyFiltersBtn');
 
 
     //
     jsonFileListingInputElem.addEventListener('change', inputChangeHandler);
+    fileNameFilterElem.addEventListener('keyup', inputChangeHandler);
     fileNameFilterElem.addEventListener('change', inputChangeHandler);
+    applyFiltersBtnElem.addEventListener('click', applyFilters);
 
 
     // Default to today's date
@@ -37,9 +121,19 @@
     const defaultDateString = defaultDate.toISOString().split('T')[0];
     fileNameFilterElem.value = defaultDateString;
 
+    function isAutoUpdateFilters() {
+        return autoUpdateFiltersInputElem.checked
+    }
 
     //
     function inputChangeHandler() {
+        if (isAutoUpdateFilters()) {
+            applyFilters();
+        }
+    }
+
+    //
+    function applyFilters() {
         const jsonTextInput = jsonFileListingInputElem.value;
         const fileNameFilter = fileNameFilterElem.value;
 
@@ -59,7 +153,13 @@
     //
     function updateOutput(json, fileNameFilter) {
 
-        const filteredLogEntries = json.filter(e => e.name.includes(fileNameFilter));
+        const fileNameFilterRegex = new RegExp(fileNameFilter);
+
+        const filteredLogEntries = json.filter(e => {
+            let isMatch = fileNameFilterRegex.test(e.name);
+            console.info(e.name, fileNameFilter, isMatch);
+            return isMatch;
+        });
         console.info('filteredLogEntries', filteredLogEntries);
 
         let outputHtmlString = '';
