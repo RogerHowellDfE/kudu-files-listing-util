@@ -5,6 +5,50 @@
     <title>Kudu Log File Listing Util</title>
 </head>
 <body>
-  
+
+<div>
+    <label for="jsonFileListingInput">JSON File Listing</label><br/>
+    <textarea cols="100" rows="10" id="jsonFileListingInput"></textarea>
+</div>
+
+<div>
+    <label for="fileNameFilterInput">File Name Filter (regex)</label><br/>
+    <input type="text" id="fileNameFilterInput"/>
+</div>
+
+<div id="outputContainer">
+</div>
+
+<script type="application/javascript">
+
+    //
+    const jsonFileListingInputElem = document.getElementById('jsonFileListingInput');
+    const fileNameFilterElem = document.getElementById('fileNameFilterInput');
+    const outputContainerElem = document.getElementById('outputContainer');
+
+
+    //
+    jsonFileListingInputElem.addEventListener('change', inputChangeHandler);
+    fileNameFilterElem.addEventListener('change', inputChangeHandler);
+
+
+    //
+    function inputChangeHandler() {
+        const jsonTextInput = jsonFileListingInputElem.value;
+        const fileNameFilter = fileNameFilterElem.value;
+
+        if (jsonTextInput !== '' && fileNameFilter !== '') {
+            const json = JSON.parse(jsonTextInput);
+
+            console.info('jsonFileListingInputElem', jsonFileListingInputElem);
+            console.info('json', json);
+            console.info('fileNameFilter', fileNameFilter);
+        } else {
+            console.info('not all input present');
+        }
+    }
+
+</script>
+
 </body>
 </html>
