@@ -32,6 +32,12 @@
     fileNameFilterElem.addEventListener('change', inputChangeHandler);
 
 
+    // Default to today's date
+    const todaysDate = new Date();
+    const defaultDateString = todaysDate.toISOString().split('T')[0];
+    fileNameFilterElem.value = defaultDateString;
+
+
     //
     function inputChangeHandler() {
         const jsonTextInput = jsonFileListingInputElem.value;
